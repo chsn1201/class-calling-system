@@ -16,7 +16,7 @@
 
 <h2 class="mt-4">点名模式</h2>
 <button class="btn btn-warning" onclick="randomCall()">随机点名</button>
-<button class="btn btn-secondary" onclick="sequentialCall()">按学号顺序点名</button>
+<button class="btn btn-secondary" onclick="sequentialCallOne()">按学号顺序点名</button>
 
 <div id="result" class="mt-3 alert alert-info" style="display:none;"></div>
 
@@ -45,13 +45,22 @@
             });
     }
 
-    function sequentialCall() {
+    function sequentialCallOne() {
         fetch('/call/sequential')
             .then(res => res.json())
             .then(data => {
-                let list = data.map(s => `${s.name} (${s.studentId})`).join(', ');
-                document.getElementById('result').style.display = 'block';
-                document.getElementById('result').innerHTML = `<strong>按学号顺序：</strong> ${list}`;
+                if (data) {
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('result').innerHTML =
+                        `<strong>顺序点到：</strong> ${data.name} (${data.studentId})`;
+                    askScoreFeedback(data.studentId, data.name); // 复用评分逻辑
+                } else {
+                    alert('暂无学生数据！');
+                }
+            })
+            .catch(err => {
+                console.error('顺序点名失败:', err);
+                alert('点名失败，请检查数据');
             });
     }
 

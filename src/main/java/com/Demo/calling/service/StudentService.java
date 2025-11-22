@@ -11,12 +11,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class StudentService {
 
     @Autowired
     private StudentRepository studentRepo;
+
+    private final AtomicInteger sequentialIndex = new AtomicInteger(0);
 
     public void importFromExcel(MultipartFile file) throws IOException {
         try (InputStream is = file.getInputStream()) {
@@ -99,5 +102,22 @@ public class StudentService {
 
     public List<Student> getAllStudentsForExport() {
         return studentRepo.findAll();
+    }
+
+    public Student getNextSequentialStudent() {
+        List<Student> students = getAllStudentsOrderedById();
+        if (students.isEmpty()) {
+            return null;
+        }
+
+        int currentIndex = sequentialIndex.getAndIncrement();
+        int index = currentIndex % students.size(); // 循环取模
+        Student student = students.get(index);
+
+        // 增加点名次数（与随机点名行为一致）
+        student.incrementCallCount();
+        studentRepo.save(student);
+
+        return student;
     }
 }

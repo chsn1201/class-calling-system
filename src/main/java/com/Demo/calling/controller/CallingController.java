@@ -56,8 +56,8 @@ public class CallingController {
 
     @GetMapping("/call/sequential")
     @ResponseBody
-    public List<Student> sequentialCall() {
-        return studentService.getAllStudentsOrderedById();
+    public Student callNextSequentialStudent() {
+        return studentService.getNextSequentialStudent();
     }
 
     @PostMapping("/score/update")
