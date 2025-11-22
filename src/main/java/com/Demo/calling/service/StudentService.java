@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @Service
 public class StudentService {
@@ -58,5 +59,45 @@ public class StudentService {
                 }
             default: return "";
         }
+    }
+
+    public Student getRandomStudent() {
+        List<Student> all = studentRepo.findAll();
+        if (all.isEmpty()) return null;
+
+        // 权重：积分越高，权重越低
+        double totalWeight = all.stream().mapToDouble(s -> Math.max(1.0, 10 - s.getScore())).sum();
+        double rand = Math.random() * totalWeight;
+        double current = 0;
+
+        for (Student s : all) {
+            current += Math.max(1.0, 10 - s.getScore());
+            if (current >= rand) {
+                s.incrementCallCount();
+                studentRepo.save(s);
+                return s;
+            }
+        }
+        return all.get(0); // fallback
+    }
+
+    public List<Student> getAllStudentsOrderedById() {
+        return studentRepo.findAllByOrderByStudentIdAsc();
+    }
+
+    public List<Student> getTopRankedStudents(int limit) {
+        return studentRepo.findAllByOrderByScoreDesc().stream().limit(limit).toList();
+    }
+
+    public void updateStudentScore(String studentId, double scoreChange) {
+        Student s = studentRepo.findByStudentId(studentId);
+        if (s != null) {
+            s.addScore(scoreChange);
+            studentRepo.save(s);
+        }
+    }
+
+    public List<Student> getAllStudentsForExport() {
+        return studentRepo.findAll();
     }
 }

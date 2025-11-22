@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+<!-- 简单上传页面 -->
+<form method="post" enctype="multipart/form-data" action="/upload">
+    <input type="file" name="file" accept=".xlsx,.xls" required />
+    <button type="submit">上传 Excel</button>
+</form>
+<p th:if="${message}" th:text="${message}" class="text-success"></p>
+<p th:if="${error}" th:text="${error}" class="text-danger"></p>
